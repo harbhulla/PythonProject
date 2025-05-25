@@ -242,7 +242,7 @@ def get_vector_store():
     )
     PineconeVectorStore.from_existing_index(index_name=index, embedding=embeddings)
     return PineconeVectorStore(
-        index=index,
+        index_name=index,
         embedding=embeddings
     )
 
