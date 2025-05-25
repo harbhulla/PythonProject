@@ -235,12 +235,16 @@ def get_pinecone_index():
 # Cache vector store + embeddings
 @st.cache_resource
 def get_vector_store():
-    index = get_pinecone_index()
     embeddings = OpenAIEmbeddings(
         model="text-embedding-3-large",
         api_key=os.getenv("OPENAI_API_KEY")
     )
-    return PineconeVectorStore(index=index, embedding=embeddings)
+    return PineconeVectorStore.from_existing_index(
+        index_name="langchainv2",
+        embedding=embeddings
+    )
+
+
 
 
 # Cache document loading and processing with content filtering
