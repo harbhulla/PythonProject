@@ -240,9 +240,9 @@ def get_vector_store():
         model="text-embedding-3-large",
         api_key=os.getenv("OPENAI_API_KEY")
     )
-    PineconeVectorStore.from_existing_index(index_name=index_name, embedding=embeddings)
+    PineconeVectorStore.from_existing_index(index_name=index, embedding=embeddings)
     return PineconeVectorStore(
-        index_name=index,
+        index=index,
         embedding=embeddings
     )
 
