@@ -63,7 +63,17 @@ jsonschema-specifications~=2025.4.1
 jsonpatch~=1.33
 dotenv~=0.9.9
 python-dotenv~=1.1.0
-pinecone~=6.0.2
 pinecone-client~=6.0.0
 langchain-openai~=0.3.16
 pypdf~=5.4.0
+pypdf~=5.4.0
+streamlit==1.45.0
+openai==1.17.0
+langchain==0.3.25
+python-dotenv==1.1.0
+pinecone-client==2.2.2  # Critical downgrade for compatibility
+langchain-community==0.3.23
+langchain-openai==0.3.16
+pypdf==5.4.0
+pypdfium2==4.28.0  # Required for PDF processing
+tiktoken==0.7.0  # For text splitting
