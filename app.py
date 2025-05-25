@@ -242,7 +242,7 @@ def get_vector_store():
     )
     PineconeVectorStore.from_existing_index(index_name=index, embedding=embeddings)
     return PineconeVectorStore(
-        index_name=index,
+        index_name="langchainv2",
         embedding=embeddings
     )
 
