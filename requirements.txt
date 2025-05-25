@@ -62,13 +62,8 @@ jsonpointer~=3.0.0
 jsonschema-specifications~=2025.4.1
 jsonpatch~=1.33
 dotenv~=0.9.9
-python-dotenv~=1.1.0
 langchain-openai~=0.3.16
 pypdf~=5.4.0
 pypdf~=5.4.0
-streamlit==1.45.0
-openai==1.17.0
-langchain==0.3.25
 python-dotenv==1.1.0
-pinecone-client==2.2.2  # Critical downgrade for compatibility
-langchain-community==0.3.23
+pinecone-client==2.2.2  # Critical downgrade for co
