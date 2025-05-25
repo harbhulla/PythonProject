@@ -6,6 +6,8 @@ import openai
 
 import streamlit as st
 from langchain_core.messages import SystemMessage, AIMessage, HumanMessage
+from openai import embeddings
+
 try:
     from langchain_pinecone import PineconeVectorStore
 except ImportError:
@@ -16,9 +18,6 @@ from pypdf import PdfReader
 from pinecone import Pinecone, ServerlessSpec
 
 load_dotenv()
-
-# Initialize OpenAI client for moderation
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 # OpenAI Moderation API integration
@@ -218,24 +217,27 @@ pinecone_api_key = os.environ["PINECONE_API_KEY"]
 pc = Pinecone(api_key=pinecone_api_key)
 index_name = "langchainv2"
 
-
-# Cache index creation
+vector_store = PineconeVectorStore.from_existing_index(
+    index_name="langchainv2",  # Name as string
+    embedding=embeddings
+)
 # Updated vector store initialization
 @st.cache_resource
 def get_vector_store():
     # Get the properly initialized Pinecone index client
     index = pc.Index(index_name)
-    
+
     embeddings = OpenAIEmbeddings(
         model="text-embedding-3-large",
         api_key=os.getenv("OPENAI_API_KEY")
     )
-    
+
     return PineconeVectorStore(
         index=index,  # Pass the actual index client
         embedding=embeddings,
         text_key="text"  # Add explicit text key
     )
+
 
 # Updated index creation check
 @st.cache_resource
