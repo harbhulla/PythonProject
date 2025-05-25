@@ -222,31 +222,32 @@ index_name = "langchainv2"
 # Cache index creation
 @st.cache_resource
 def get_pinecone_index():
-    if not pc.has_index(index_name):
+    # Check if index exists
+    if index_name not in pc.list_indexes().names():
         pc.create_index(
             name=index_name,
             dimension=3072,
             metric="cosine",
             spec=ServerlessSpec(cloud="aws", region="us-east-1"),
         )
-    return pc.Index(index_name)
+    # Return the index name instead of the object
+    return index_name
 
 
 # Cache vector store + embeddings
+# Update get_vector_store function
 @st.cache_resource
 def get_vector_store():
-    index = get_pinecone_index()
     embeddings = OpenAIEmbeddings(
         model="text-embedding-3-large",
         api_key=os.getenv("OPENAI_API_KEY")
     )
-    PineconeVectorStore.from_existing_index(index_name=index, embedding=embeddings)
-    return PineconeVectorStore(
-        index_name="langchainv2",
+
+    # Get the index NAME not object
+    return PineconeVectorStore.from_existing_index(
+        index_name=index_name,  # Use the index name string
         embedding=embeddings
     )
-
-
 
 
 # Cache document loading and processing with content filtering
@@ -262,15 +263,14 @@ def process_pdfs():
     vector_store = get_vector_store()
 
     # Check if we need to add documents (by checking if index exists and has documents)
-    try:
-        test_results = vector_store.as_retriever().invoke("cognitive behavioral therapy")
-        if test_results:
-            # Documents are already in the index
-            st.success("Using existing document embeddings from Pinecone.")
-            return True
-    except Exception:
-        # If error occurs, we'll proceed to add documents
-        pass
+    if index_name in pc.list_indexes().names():
+        try:
+            test_results = vector_store.similarity_search("cognitive behavioral therapy", k=1)
+            if test_results:
+                st.success("Using existing document embeddings from Pinecone.")
+                return True
+        except Exception as e:
+            st.warning(f"Index check failed: {str(e)}")
 
     # Process and add documents with content filtering
     all_chunks = []
