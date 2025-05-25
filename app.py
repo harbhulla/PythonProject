@@ -220,9 +220,26 @@ index_name = "langchainv2"
 
 
 # Cache index creation
+# Updated vector store initialization
+@st.cache_resource
+def get_vector_store():
+    # Get the properly initialized Pinecone index client
+    index = pc.Index(index_name)
+    
+    embeddings = OpenAIEmbeddings(
+        model="text-embedding-3-large",
+        api_key=os.getenv("OPENAI_API_KEY")
+    )
+    
+    return PineconeVectorStore(
+        index=index,  # Pass the actual index client
+        embedding=embeddings,
+        text_key="text"  # Add explicit text key
+    )
+
+# Updated index creation check
 @st.cache_resource
 def get_pinecone_index():
-    # Check if index exists
     if index_name not in pc.list_indexes().names():
         pc.create_index(
             name=index_name,
@@ -230,25 +247,8 @@ def get_pinecone_index():
             metric="cosine",
             spec=ServerlessSpec(cloud="aws", region="us-east-1"),
         )
-    # Return the index name instead of the object
-    return index_name
-
-
-# Cache vector store + embeddings
-# Update get_vector_store function
-@st.cache_resource
-def get_vector_store():
-    embeddings = OpenAIEmbeddings(
-        model="text-embedding-3-large",
-        api_key=os.getenv("OPENAI_API_KEY")
-    )
-
-    # Get the index NAME not object
-    return PineconeVectorStore.from_existing_index(
-        index_name=index_name,  # Use the index name string
-        embedding=embeddings
-    )
-
+    # Return the properly configured index client
+    return pc.Index(index_name)
 
 # Cache document loading and processing with content filtering
 @st.cache_data
