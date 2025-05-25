@@ -6,7 +6,10 @@ import openai
 
 import streamlit as st
 from langchain_core.messages import SystemMessage, AIMessage, HumanMessage
-from langchain_pinecone import PineconeVectorStore
+try:
+    from langchain_pinecone import PineconeVectorStore
+except ImportError:
+    from langchain_community.vectorstores import Pinecone as PineconeVectorStore
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pypdf import PdfReader
