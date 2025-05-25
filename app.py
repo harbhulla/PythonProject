@@ -6,6 +6,8 @@ import openai
 
 import streamlit as st
 from langchain_core.messages import SystemMessage, AIMessage, HumanMessage
+from openai import embeddings
+
 try:
     from langchain_pinecone import PineconeVectorStore
 except ImportError:
@@ -16,9 +18,6 @@ from pypdf import PdfReader
 from pinecone import Pinecone, ServerlessSpec
 
 load_dotenv()
-
-# Initialize OpenAI client for moderation
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 # OpenAI Moderation API integration
@@ -218,34 +217,40 @@ pinecone_api_key = os.environ["PINECONE_API_KEY"]
 pc = Pinecone(api_key=pinecone_api_key)
 index_name = "langchainv2"
 
+vector_store = PineconeVectorStore.from_existing_index(
+    index_name="langchainv2",  # Name as string
+    embedding=embeddings
+)
+# Updated vector store initialization
+@st.cache_resource
+def get_vector_store():
+    # Get the properly initialized Pinecone index client
+    index = pc.Index(index_name)
 
-# Cache index creation
+    embeddings = OpenAIEmbeddings(
+        model="text-embedding-3-large",
+        api_key=os.getenv("OPENAI_API_KEY")
+    )
+
+    return PineconeVectorStore(
+        index=index,  # Pass the actual index client
+        embedding=embeddings,
+        text_key="text"  # Add explicit text key
+    )
+
+
+# Updated index creation check
 @st.cache_resource
 def get_pinecone_index():
-    if not pc.has_index(index_name):
+    if index_name not in pc.list_indexes().names():
         pc.create_index(
             name=index_name,
             dimension=3072,
             metric="cosine",
             spec=ServerlessSpec(cloud="aws", region="us-east-1"),
         )
+    # Return the properly configured index client
     return pc.Index(index_name)
-
-
-# Cache vector store + embeddings
-@st.cache_resource
-def get_vector_store():
-    embeddings = OpenAIEmbeddings(
-        model="text-embedding-3-large",
-        api_key=os.getenv("OPENAI_API_KEY")
-    )
-    return PineconeVectorStore.from_existing_index(
-        index_name="langchainv2",
-        embedding=embeddings
-    )
-
-
-
 
 # Cache document loading and processing with content filtering
 @st.cache_data
@@ -260,15 +265,14 @@ def process_pdfs():
     vector_store = get_vector_store()
 
     # Check if we need to add documents (by checking if index exists and has documents)
-    try:
-        test_results = vector_store.as_retriever().invoke("cognitive behavioral therapy")
-        if test_results:
-            # Documents are already in the index
-            st.success("Using existing document embeddings from Pinecone.")
-            return True
-    except Exception:
-        # If error occurs, we'll proceed to add documents
-        pass
+    if index_name in pc.list_indexes().names():
+        try:
+            test_results = vector_store.similarity_search("cognitive behavioral therapy", k=1)
+            if test_results:
+                st.success("Using existing document embeddings from Pinecone.")
+                return True
+        except Exception as e:
+            st.warning(f"Index check failed: {str(e)}")
 
     # Process and add documents with content filtering
     all_chunks = []
