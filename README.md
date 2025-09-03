@@ -6,7 +6,7 @@ A Python-based application demonstrating core programming concepts, modular desi
 
 📦 Modular Python codebase with reusable components
 
-🧮 Implements algorithms and core logic for [insert main purpose, e.g., "data processing" / "automation task" / "game logic"]
+🧮 Implements algorithms and core logic
 
 🧪 Unit-tested with unittest for reliability and maintainability
 
@@ -14,11 +14,12 @@ A Python-based application demonstrating core programming concepts, modular desi
 
 🛠 Tech Stack
 
-Language: Python 3.x
+Language: Python 3.x<br>
 
-Libraries: NumPy, Pandas
+Libraries: NumPy, Pandas<br>
 
-Testing: unittest / pytest
+Testing: unittest / pytest<br>
 
 Tools: Git, VSCode / PyCharm
+
 
