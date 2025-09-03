@@ -16,8 +16,9 @@ A Python-based application demonstrating core programming concepts, modular desi
 
 Language: Python 3.x
 
-Libraries: NumPy, Pandas, [add if you used any others]
+Libraries: NumPy, Pandas
 
 Testing: unittest / pytest
 
 Tools: Git, VSCode / PyCharm
+
